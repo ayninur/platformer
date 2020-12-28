@@ -1,7 +1,6 @@
-///////////////////////////////////////////////
-// CREATE ASSET LOADER - loads and access imgs
-//////////////////////////////////////////////
-
+/////////////////////////////////////////////////////////////
+// DRAW CANVAS
+/////////////////////////////////////////////////////////////
 // wrap inside immediately invoked function expression (IIFE)
 (function () {
     // get canvas context so we can use them
@@ -26,6 +25,10 @@
                 window.setTimeout(callback, 1000 / 60);
             };
     })();
+
+    ///////////////////////////////////////////////
+    // CREATE ASSET LOADER - loads and access imgs
+    //////////////////////////////////////////////
     /**
      * Asset pre-loader object. Loads all images and sounds (holds all image and audio objects)
      */
@@ -175,7 +178,7 @@
     }
 
     /**
-     * Create a parallax background
+     * Create a parallax background - creates an illusion of moving by panning the image
      */
     var background = (function () {
         var sky = {};
@@ -254,7 +257,7 @@
         }
 
         player.anim.update();
-        player.anim.draw(64, 260);
+        player.anim.draw(90, 260);
     }
 
     /**
@@ -272,17 +275,17 @@
     })();
 
     /**
-     * Start the game - reset all variables and entities, spawn platforms and water.
+     * Start the game (by creating an animation loop) - reset all variables and entities, spawn platforms and water.
      */
     function startGame() {
         // setup the player
-        player.width = 60;
-        player.height = 96;
-        player.speed = 6;
+        player.width = 150;
+        player.height = 130;
+        player.speed = 6; //moves all objects on the screen at a constant rate (not the player)
         player.sheet = new SpriteSheet('imgs/normal_walk.png', player.width, player.height);
         player.anim = new Animation(player.sheet, 4, 0, 15);
 
-        // create the ground tiles
+        // create the ground tiles (ensure theres 2 more than would fit on screen so we have a buffer)
         for (i = 0, length = Math.floor(canvas.width / platformWidth) + 2; i < length; i++) {
             ground[i] = { 'x': i * platformWidth, 'y': platformHeight };
         }
