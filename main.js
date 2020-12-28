@@ -238,62 +238,121 @@
         };
     })();
 
+    /** //change to class inheritance**
+     * Vector: stores current position and how to update the position with every frame for every object in our game
+     * @param {integer} x - Center x coordinate
+     * @param {integer} y - Center y coordinate
+     * @param {integer} dx - Change in x
+     * @param {integer} dy - Change in y
+     */
+    // with this object later we can create all of our game objects that will inherit from it 
+    function Vector(x, y, dx, dy) {
+        // positioned
+        this.x = x || 0;
+        this.y = y || 0;
+        // direction
+        this.dx = dx || 0;
+        this.dy = dy || 0;
+    }
+
+    /**
+     * Advance the vectors position by dx and dy
+     */
+    Vector.prototype.advance = function () {
+        this.x += this.dx;
+        this.y = this.dy;
+    };
+
+    /**
+     * Minimum Distance - determines if the horse will collide with a platform of enemy
+     * to avoid the possibility of the object and the hourse missing eachother because of the frame we must calculate if at any point from point a to point b his path crosses the other object
+     * @param {Vector}
+     * @return minDist
+     */
+    Vector.prototype.minDist = function (vec) {
+        var minDist = Infinity; //or greater than any other number or the largest value btwn the two objects
+        var max = Math.max(Math.abs(this.dx), Math.abs(this.dy),
+            Math.abs(vec.dx), Math.abs(vex.dy)); // stores x&y distance of this vec and the vector
+        var slice = 1 / max;
+        var x, y, distSquared;
+        // determine the center of each object (because the equation only works if measured from center to center)
+        var vec1 = {}, vec2 = {};
+        vec1.x = this.x + this.width / 2;
+        vec1.y = this.y + this.height / 2;
+        vec2.x = vec.x + vec.width / 2;
+        vec2.y = vec.y + vec.height / 2;
+
+        // calculate the distance logic
+        for (var percent = 0; percent < 1; percent += slice) {
+            x = (vec1.x + this.dx * percent) - (vec2.x + vec.dx * percent);
+            y = (vec1.y + this.dy * percent) - (vec2.y + vec.dy * percent);
+            distSquared = x * x + y * y;
+            minDist = Math.min(minDist, distSquared);
+        }
+
+        // we only need to return the smallest distance between the 2 objects bc this number determines whether or not the objects collided
+        return Math.sqrt(minDist);
+    };
+
+    // first we need to update our asset loader with all of the new assets
+
+}
     /**
      * Game loop
      */
     function animate() {
-        requestAnimFrame(animate);
+    requestAnimFrame(animate);
 
-        background.draw();
+    background.draw();
 
-        for (i = 0; i < ground.length; i++) {
-            ground[i].x -= player.speed;
-            ctx.drawImage(assetLoader.imgs.grass, ground[i].x, ground[i].y);
-        }
-
-        if (ground[0].x <= -platformWidth) {
-            ground.shift();
-            ground.push({ 'x': ground[ground.length - 1].x + platformWidth, 'y': platformHeight });
-        }
-
-        player.anim.update();
-        player.anim.draw(90, 260);
+    for (i = 0; i < ground.length; i++) {
+        ground[i].x -= player.speed;
+        ctx.drawImage(assetLoader.imgs.grass, ground[i].x, ground[i].y);
     }
 
-    /**
-     * Request Animation Polyfill
-     */
-    var requestAnimFrame = (function () {
-        return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (callback, element) {
-                window.setTimeout(callback, 1000 / 60);
-            };
-    })();
-
-    /**
-     * Start the game (by creating an animation loop) - reset all variables and entities, spawn platforms and water.
-     */
-    function startGame() {
-        // setup the player
-        player.width = 150;
-        player.height = 130;
-        player.speed = 6; //moves all objects on the screen at a constant rate (not the player)
-        player.sheet = new SpriteSheet('imgs/normal_walk.png', player.width, player.height);
-        player.anim = new Animation(player.sheet, 4, 0, 15);
-
-        // create the ground tiles (ensure theres 2 more than would fit on screen so we have a buffer)
-        for (i = 0, length = Math.floor(canvas.width / platformWidth) + 2; i < length; i++) {
-            ground[i] = { 'x': i * platformWidth, 'y': platformHeight };
-        }
-
-        background.reset();
-
-        animate();
+    if (ground[0].x <= -platformWidth) {
+        ground.shift();
+        ground.push({ 'x': ground[ground.length - 1].x + platformWidth, 'y': platformHeight });
     }
 
-    assetLoader.downloadAll();
+    player.anim.update();
+    player.anim.draw(90, 260);
+}
+
+/**
+ * Request Animation Polyfill
+ */
+var requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback, element) {
+            window.setTimeout(callback, 1000 / 60);
+        };
 })();
+
+/**
+ * Start the game (by creating an animation loop) - reset all variables and entities, spawn platforms and water.
+ */
+function startGame() {
+    // setup the player
+    player.width = 150;
+    player.height = 130;
+    player.speed = 6; //moves all objects on the screen at a constant rate (not the player)
+    player.sheet = new SpriteSheet('imgs/normal_walk.png', player.width, player.height);
+    player.anim = new Animation(player.sheet, 4, 0, 15);
+
+    // create the ground tiles (ensure theres 2 more than would fit on screen so we have a buffer)
+    for (i = 0, length = Math.floor(canvas.width / platformWidth) + 2; i < length; i++) {
+        ground[i] = { 'x': i * platformWidth, 'y': platformHeight };
+    }
+
+    background.reset();
+
+    animate();
+}
+
+assetLoader.downloadAll();
+}) ();
